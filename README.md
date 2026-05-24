@@ -196,9 +196,9 @@ Just keep the copyright notice. That's it.
 
 <div align="center">
 
-**Built by Prince** · [@markglenncomia8-byte](https://github.com/markglenncomia8-byte)
+**Built by Mark Glenn** · [@markglenncomia8-byte](https://github.com/markglenncomia8-byte)
 
-19 y/o Filipino dev · CompE student · Building useful things 🇵🇭
+13 y/o Filipino dev · · Building useful things 🇵🇭
 
 <br/>
 
