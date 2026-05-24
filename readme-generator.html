@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>README.forge — AI README Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+:root {
+  --bg: #080810;
+  --surface: #0f0f1a;
+  --surface2: #161625;
+  --border: rgba(255,255,255,0.07);
+  --border-hi: rgba(124,107,255,0.4);
+  --accent: #7c6bff;
+  --accent2: #00e5cc;
+  --text: #f0f0ff;
+  --text-sub: rgba(240,240,255,0.45);
+  --danger: #ff6b6b;
+  --success: #00e5cc;
+  --r: 16px;
+  --r-sm: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 70% 50% at 20% 0%, rgba(124,107,255,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 100%, rgba(0,229,204,0.08) 0%, transparent 60%);
+  overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 28px 32px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.logo span { color: var(--accent); }
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent2);
+  background: rgba(0,229,204,0.08);
+  border: 1px solid rgba(0,229,204,0.2);
+  padding: 4px 10px;
+  border-radius: 99px;
+}
+
+/* ── HERO ── */
+.hero {
+  text-align: center;
+  padding: 60px 24px 40px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #fff 30%, rgba(124,107,255,0.8));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+}
+
+.hero p {
+  font-size: 16px;
+  color: var(--text-sub);
+  line-height: 1.7;
+}
+
+/* ── MAIN LAYOUT ── */
+.main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; }
+}
+
+/* ── FORM PANEL ── */
+.form-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 24px;
+  position: sticky;
+  top: 24px;
+}
+
+.form-panel h2 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-sub);
+  margin-bottom: 20px;
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-sub);
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.6;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124,107,255,0.15);
+}
+
+.field input::placeholder,
+.field textarea::placeholder { color: rgba(240,240,255,0.25); }
+
+/* checkboxes */
+.checks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 9px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.check-item:hover { border-color: var(--border-hi); }
+.check-item.active {
+  border-color: var(--accent);
+  background: rgba(124,107,255,0.1);
+  color: #a89bff;
+}
+
+.check-item input { display: none; }
+
+/* generate button */
+.gen-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--accent), #a855f7);
+  color: white;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 8px 32px rgba(124,107,255,0.35);
+  margin-top: 8px;
+  letter-spacing: 0.3px;
+}
+
+.gen-btn:hover {
+  box-shadow: 0 12px 40px rgba(124,107,255,0.55);
+  transform: translateY(-1px);
+}
+
+.gen-btn:active { transform: scale(0.98); }
+.gen-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* api key field */
+.api-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.api-section p {
+  font-size: 12px;
+  color: var(--text-sub);
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.api-section a { color: var(--accent); text-decoration: none; }
+
+/* ── OUTPUT PANEL ── */
+.output-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.output-header h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-sub);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  border-radius: var(--r-sm);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text-sub);
+}
+
+.btn-sm:hover { background: var(--surface); color: var(--text); border-color: var(--border-hi); }
+
+.btn-sm.primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: 0 4px 16px rgba(124,107,255,0.3);
+}
+
+.btn-sm.primary:hover { box-shadow: 0 6px 24px rgba(124,107,255,0.5); }
+
+/* tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 4px;
+  width: fit-content;
+}
+
+.tab {
+  padding: 7px 16px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text-sub);
+  border: none;
+  background: none;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.tab.active {
+  background: var(--surface2);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* output boxes */
+.output-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  min-height: 500px;
+}
+
+.output-box.hidden { display: none; }
+
+/* markdown preview */
+#preview-box {
+  padding: 32px;
+  line-height: 1.8;
+  font-size: 15px;
+}
+
+#preview-box h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+#preview-box h2 { font-size: 20px; font-weight: 600; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+#preview-box h3 { font-size: 16px; font-weight: 600; margin: 16px 0 8px; }
+#preview-box p { margin-bottom: 12px; color: rgba(240,240,255,0.85); }
+#preview-box ul, #preview-box ol { padding-left: 20px; margin-bottom: 12px; }
+#preview-box li { margin-bottom: 6px; color: rgba(240,240,255,0.85); }
+#preview-box code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--accent2);
+}
+#preview-box pre {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 16px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+#preview-box pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: rgba(240,240,255,0.9);
+}
+#preview-box table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 14px;
+}
+#preview-box th {
+  background: var(--surface2);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  color: var(--accent2);
+}
+#preview-box td {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  color: rgba(240,240,255,0.8);
+}
+#preview-box blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 8px 16px;
+  margin: 12px 0;
+  background: rgba(124,107,255,0.05);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  color: var(--text-sub);
+}
+#preview-box img { display: none; }
+#preview-box a { color: var(--accent); text-decoration: none; }
+#preview-box hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+/* raw box */
+#raw-box {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(240,240,255,0.8);
+  padding: 24px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-y: auto;
+  max-height: 700px;
+}
+
+/* loading */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 20px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading p {
+  color: var(--text-sub);
+  font-size: 14px;
+  animation: pulse 1.5s ease infinite;
+}
+
+@keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+/* empty state */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 12px;
+  color: var(--text-sub);
+}
+
+.empty-icon { font-size: 48px; opacity: 0.3; }
+.empty p { font-size: 14px; }
+
+/* status */
+.status {
+  font-size: 12px;
+  padding: 8px 14px;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  display: none;
+  margin-top: 8px;
+}
+.status.error { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3); color: var(--danger); display: block; }
+.status.success { background: rgba(0,229,204,0.1); border: 1px solid rgba(0,229,204,0.3); color: var(--success); display: block; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 99px; }
+
+/* copy toast */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  background: var(--surface2);
+  border: 1px solid var(--border-hi);
+  color: var(--accent2);
+  padding: 12px 20px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 600;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">README<span>.forge</span></div>
+  <div class="badge">AI Powered</div>
+</header>
+
+<div class="hero">
+  <h1>Generate READMEs that actually get stars</h1>
+  <p>Fill in your project details and let AI write a professional, beautiful README for your GitHub repository in seconds.</p>
+</div>
+
+<div class="main">
+
+  <!-- FORM -->
+  <div class="form-panel">
+    <h2>⚙ Project Details</h2>
+
+    <div class="field">
+      <label>Project Name *</label>
+      <input id="f-name" type="text" placeholder="e.g. MAEA OS">
+    </div>
+
+    <div class="field">
+      <label>Tagline</label>
+      <input id="f-tagline" type="text" placeholder="e.g. Modular engineering toolkit with AI">
+    </div>
+
+    <div class="field">
+      <label>Description *</label>
+      <textarea id="f-desc" placeholder="What does your project do? Who is it for? What problem does it solve?"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Tech Stack</label>
+      <input id="f-tech" type="text" placeholder="e.g. JavaScript, HTML, CSS, Python">
+    </div>
+
+    <div class="field">
+      <label>GitHub Username</label>
+      <input id="f-user" type="text" placeholder="e.g. markglenncomia8-byte">
+    </div>
+
+    <div class="field">
+      <label>Repo Name</label>
+      <input id="f-repo" type="text" placeholder="e.g. maea-system">
+    </div>
+
+    <div class="field">
+      <label>License</label>
+      <select id="f-license">
+        <option value="MIT">MIT</option>
+        <option value="AGPL-3.0" selected>AGPL-3.0</option>
+        <option value="GPL-3.0">GPL-3.0</option>
+        <option value="Apache-2.0">Apache-2.0</option>
+        <option value="CC BY-NC 4.0">CC BY-NC 4.0</option>
+        <option value="Unlicense">Unlicense</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Include Sections</label>
+      <div class="checks" id="sections">
+        <div class="check-item active" data-val="features">✨ Features</div>
+        <div class="check-item active" data-val="installation">🚀 Installation</div>
+        <div class="check-item active" data-val="usage">📖 Usage</div>
+        <div class="check-item active" data-val="structure">🏗 Structure</div>
+        <div class="check-item active" data-val="contributing">🤝 Contributing</div>
+        <div class="check-item active" data-val="license">📜 License</div>
+        <div class="check-item" data-val="demo">🎥 Demo</div>
+        <div class="check-item" data-val="roadmap">🗺 Roadmap</div>
+        <div class="check-item" data-val="badges">🏷 Badges</div>
+        <div class="check-item" data-val="faq">❓ FAQ</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Tone</label>
+      <select id="f-tone">
+        <option value="professional">Professional</option>
+        <option value="casual and friendly">Casual & Friendly</option>
+        <option value="minimal and clean">Minimal & Clean</option>
+        <option value="technical and detailed">Technical & Detailed</option>
+      </select>
+    </div>
+
+    <button class="gen-btn" id="gen-btn" onclick="generate()">⚡ Generate README</button>
+    <div class="status" id="status"></div>
+
+    <div class="api-section">
+      <p>Powered by <a href="https://openrouter.ai" target="_blank">OpenRouter</a> free API. Get your free key at openrouter.ai — no credit card needed.</p>
+      <div class="field" style="margin-bottom:0">
+        <label>OpenRouter API Key</label>
+        <input id="f-key" type="password" placeholder="sk-or-v1-...">
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="output-panel">
+    <div class="output-header">
+      <h2>Output</h2>
+      <div class="btn-row">
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('preview')">👁 Preview</button>
+          <button class="tab" onclick="switchTab('raw')">{'<>'} Raw</button>
+        </div>
+        <button class="btn-sm primary" onclick="copyMd()">📋 Copy</button>
+        <button class="btn-sm" onclick="downloadMd()">⬇ Download</button>
+      </div>
+    </div>
+
+    <div class="output-box" id="preview-wrap">
+      <div id="preview-box">
+        <div class="empty">
+          <div class="empty-icon">📄</div>
+          <p>Your README will appear here</p>
+          <p>Fill in the form and click Generate</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="output-box hidden" id="raw-wrap">
+      <div id="raw-box">Fill in the form and click Generate to create your README.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">✅ Copied to clipboard!</div>
+
+<script>
+const MODEL = 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free';
+let currentMd = '';
+
+// Section toggles
+document.querySelectorAll('.check-item').forEach(function(el) {
+  el.addEventListener('click', function() { el.classList.toggle('active'); });
+});
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(t, i) {
+    t.classList.toggle('active', (i === 0 && tab === 'preview') || (i === 1 && tab === 'raw'));
+  });
+  document.getElementById('preview-wrap').classList.toggle('hidden', tab !== 'preview');
+  document.getElementById('raw-wrap').classList.toggle('hidden', tab !== 'raw');
+}
+
+function showStatus(msg, type) {
+  var el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status ' + (type || '');
+}
+
+function renderMarkdown(md) {
+  if (window.marked) { return window.marked.parse(md); }
+  return '<pre>' + md.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre>';
+}
+
+function copyMd() {
+  if (!currentMd) return;
+  navigator.clipboard.writeText(currentMd).then(function() {
+    var t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2500);
+  });
+}
+
+function downloadMd() {
+  if (!currentMd) return;
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([currentMd], { type: 'text/markdown' }));
+  a.download = 'README.md';
+  a.click();
+}
+
+async function generate() {
+  var name   = document.getElementById('f-name').value.trim();
+  var desc   = document.getElementById('f-desc').value.trim();
+  var apiKey = document.getElementById('f-key').value.trim();
+
+  if (!name || !desc) { showStatus('Please fill in Project Name and Description!', 'error'); return; }
+  if (!apiKey)        { showStatus('Please enter your OpenRouter API key!', 'error'); return; }
+
+  var tagline  = document.getElementById('f-tagline').value.trim();
+  var tech     = document.getElementById('f-tech').value.trim();
+  var user     = document.getElementById('f-user').value.trim();
+  var repo     = document.getElementById('f-repo').value.trim();
+  var license  = document.getElementById('f-license').value;
+  var tone     = document.getElementById('f-tone').value;
+  var sections = Array.from(document.querySelectorAll('.check-item.active')).map(function(el) { return el.dataset.val; });
+
+  var btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+  showStatus('', '');
+
+  document.getElementById('preview-box').innerHTML = '<div class="loading"><div class="spinner"></div><p>AI is writing your README...</p></div>';
+  document.getElementById('raw-box').textContent = 'Generating...';
+
+  var prompt = 'You are an expert GitHub README writer. Generate a professional, well-structured README.md in Markdown format.\n\n'
+    + 'Project Details:\n'
+    + '- Name: ' + name + '\n'
+    + '- Tagline: ' + (tagline || 'N/A') + '\n'
+    + '- Description: ' + desc + '\n'
+    + '- Tech Stack: ' + (tech || 'Not specified') + '\n'
+    + '- GitHub Username: ' + (user || 'username') + '\n'
+    + '- Repository Name: ' + (repo || 'repo-name') + '\n'
+    + '- License: ' + license + '\n'
+    + '- Tone: ' + tone + '\n\n'
+    + 'Include these sections: ' + sections.join(', ') + '\n\n'
+    + 'Requirements:\n'
+    + '- Use proper Markdown with headers, tables, code blocks, badges\n'
+    + '- Add shields.io badges if badges section selected\n'
+    + '- Include emoji icons for section headers\n'
+    + '- Add tech stack badges if provided\n'
+    + '- Tone should be ' + tone + '\n'
+    + '- Do NOT include placeholder image URLs\n'
+    + '- Output ONLY raw markdown, nothing else';
+
+  try {
+    var res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + apiKey,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://github.com/markglenncomia8-byte/readme-forge',
+        'X-Title': 'README.forge'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 4000
+      })
+    });
+
+    if (!res.ok) {
+      var err = await res.json().catch(function() { return {}; });
+      throw new Error(err.error ? err.error.message : 'HTTP ' + res.status);
+    }
+
+    var data = await res.json();
+    var md = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
+    if (!md) { throw new Error('Empty response from AI'); }
+
+    currentMd = md.replace(/^```markdown\n?/i, '').replace(/```$/, '').trim();
+    document.getElementById('raw-box').textContent = currentMd;
+    document.getElementById('preview-box').innerHTML = renderMarkdown(currentMd);
+    showStatus('✅ README generated!', 'success');
+
+  } catch(e) {
+    document.getElementById('preview-box').innerHTML = '<div class="empty"><div class="empty-icon">❌</div><p>' + e.message + '</p></div>';
+    showStatus('Error: ' + e.message, 'error');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '⚡ Generate README';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && e.ctrlKey) { generate(); }
+});
+</script>
+</body>
+</html>
