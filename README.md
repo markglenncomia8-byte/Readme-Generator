@@ -186,7 +186,7 @@ git push origin feature/your-feature
 ## 📜 License
 
 ```
-MIT License — Copyright (c) 2026 Prince · markglenncomia8-byte
+MIT License — Copyright (c) 2026 Mark Glenn · markglenncomia8-byte
 
 Free to use, modify, and distribute.
 Just keep the copyright notice. That's it.
